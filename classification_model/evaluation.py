@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report, accuracy_score, \
 
 
 def generate_report(y_true: list, y_pred: list):
-    report = pd.DataFrame(classification_report(y_true=y_true, y_pred=y_pred, output_dict=True)).T
+    report = np.round(pd.DataFrame(classification_report(y_true=y_true, y_pred=y_pred, output_dict=True)), 2).T
     return report
 
 
@@ -30,3 +30,15 @@ def metrics_summary(y_true: list, y_pred: list):
     print(f'The precision is: {metrics["precision"]}')
     print(f'The recall is: {metrics["recall"]}')
     print(f'The F1 score is: {metrics["f1"]}')
+
+
+def print_report(y_test: list, y_pred: list):
+    for i, col in enumerate(y_test):
+        print(f'The prediction for {col} is: \n')
+        print(generate_report(y_test[col], y_pred[:, i]))
+
+
+def print_cm(y_test: list, y_pred: list):
+    for i, col in enumerate(y_test):
+        print(f'The confusion matrix for {col} is: \n')
+        print(confusion_matrix(y_test[col], y_pred[:, i]))
