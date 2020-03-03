@@ -3,22 +3,21 @@ import sys
 import logging
 import nltk
 import joblib
-import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from classification_model.evaluation import print_metrics_summary
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, precision_score,\
-                            recall_score, f1_score
+
 import warnings
 
-# nltk.download(['punkt', 'wordnet', 'stopwords'])
+nltk.download(['punkt', 'wordnet', 'stopwords'])
 
 warnings.filterwarnings(action='ignore')
 
@@ -60,26 +59,14 @@ def build_model():
         'clf__estimator__max_depth': [5, 7, 10]
     }
 
-    model = GridSearchCV(estimator=xgb_pipeline, param_grid=params, n_jobs=-1, cv=5)
+    model = GridSearchCV(estimator=xgb_pipeline, param_grid=params, cv=5)
     logger.info('The model has been instantiated')
     return model
 
 
 def evaluate_model(model, X_test: pd.DataFrame, Y_test: pd.Series):
     y_pred = model.predict(X_test)
-    metrics = {
-        'accuracy': np.round(accuracy_score(y_true=Y_test, y_pred=y_pred), 2),
-        'precision': np.round(precision_score(y_true=Y_test, y_pred=y_pred, average='weighted'), 2),
-        'recall': np.round(recall_score(y_true=Y_test, y_pred=y_pred, average='weighted'), 2),
-        'f1': np.round(f1_score(y_true=Y_test, y_pred=y_pred, average='weighted'), 2),
-
-    }
-    for i, col in enumerate(Y_test):
-        print(f'The metrics for {col} is: \n')
-        print(f'The accuracy is: {metrics["accuracy"]}')
-        print(f'The precision is: {metrics["precision"]}')
-        print(f'The recall is: {metrics["recall"]}')
-        print(f'The F1 score is: {metrics["f1"]}')
+    print_metrics_summary(Y_test, y_pred)
     logger.info('The model has been evaluated on unobserved data')
 
 
@@ -93,7 +80,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print(f'Loading data...\n    DATABASE: {database_filepath}')
         X, Y = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
         print('Building model...')
         model = build_model()
