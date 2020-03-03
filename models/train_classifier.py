@@ -1,8 +1,8 @@
 import re
 import sys
 import logging
-import joblib
 import nltk
+import joblib
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
@@ -13,12 +13,12 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.pipeline import Pipeline
+from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, precision_score,\
                             recall_score, f1_score
-from xgboost import XGBClassifier
 import warnings
 
-nltk.download(['punkt', 'wordnet', 'stopwords'])
+# nltk.download(['punkt', 'wordnet', 'stopwords'])
 
 warnings.filterwarnings(action='ignore')
 
@@ -52,15 +52,15 @@ def tokenize(text):
 
 
 def build_model():
-    gb_pipeline = Pipeline([('tfidf', TfidfVectorizer(min_df=0.1, tokenizer=tokenize)),
-                            ('clf', MultiOutputClassifier(XGBClassifier(random_state=42, n_jobs=-1)))])
+    xgb_pipeline = Pipeline([('tfidf', TfidfVectorizer(min_df=0.1, tokenizer=tokenize)),
+                            ('clf', MultiOutputClassifier(XGBClassifier(random_state=42)))])
     params = {
         'tfidf__ngram_range': ((1, 1), (1, 2)),
         'clf__estimator__n_estimators': [100, 200],
         'clf__estimator__max_depth': [5, 7, 10]
     }
 
-    model = GridSearchCV(estimator=gb_pipeline, param_grid=params, n_jobs=-1, cv=5)
+    model = GridSearchCV(estimator=xgb_pipeline, param_grid=params, n_jobs=-1, cv=5)
     logger.info('The model has been instantiated')
     return model
 
@@ -84,14 +84,14 @@ def evaluate_model(model, X_test: pd.DataFrame, Y_test: pd.Series):
 
 
 def save_model(model, model_filepath: str):
-    joblib.dump(model, model_filepath)
+    joblib.dump(value=model, filename=model_filepath)
     logger.info('The model has been saved successfully!')
 
 
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
-        print('Loading data...\n    DATABASE: {}'.format(database_filepath))
+        print(f'Loading data...\n    DATABASE: {database_filepath}')
         X, Y = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
@@ -104,7 +104,7 @@ def main():
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test)
 
-        print('Saving model...\n    MODEL: {}'.format(model_filepath))
+        print(f'Saving model...\n    MODEL: {model_filepath}')
         save_model(model, model_filepath)
 
         print('Trained model saved!')

@@ -25,11 +25,11 @@ def tokenize(text):
 
 
 # load data
-engine = create_engine('sqlite:///../data/MessagesDisaster.db')
+engine = create_engine('sqlite:///MessagesDisaster.db')
 df = pd.read_sql_table('messages_disaster', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/xgboost.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model

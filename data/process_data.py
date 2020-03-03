@@ -13,20 +13,20 @@ def load_data(messages_filepath: str, categories_filepath: str) -> pd.DataFrame:
 
 def clean_data(df: pd.DataFrame, col: str = 'categories') -> pd.DataFrame:
     categories = df[col].str.split(';', expand=True)
-    row = categories.iloc[0, :]
+    row = categories.loc[0, :]
     category_colnames = [i.split('-')[0] for i in row.values]
     categories.columns = category_colnames
     for column in categories:
         categories[column] = categories[column].str[-1]
         categories[column] = pd.to_numeric(categories[column])
-    df = df.drop(col, axis=1, inplace=True)
+    df.drop(col, axis=1, inplace=True)
     df = pd.concat([df, categories], axis=1)
     df.drop_duplicates(inplace=True)
     return df
 
 
-def save_data(df: pd.DataFrame, database_filename: str):
-    data_path = os.path.join(f'sqlite:///{database_filename}')
+def save_data(df: pd.DataFrame, database_filepath: str):
+    data_path = os.path.join(f'sqlite:///{database_filepath}')
     engine = create_engine(data_path)
     df.to_sql('messages_disaster', engine, index=False)
 
@@ -36,14 +36,12 @@ def main():
 
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
 
-        print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
-              .format(messages_filepath, categories_filepath))
+        print(f'Loading data...\n    MESSAGES: {messages_filepath}\n    CATEGORIES: {categories_filepath}')
         df = load_data(messages_filepath, categories_filepath)
-
         print('Cleaning data...')
         df = clean_data(df)
 
-        print('Saving data...\n    DATABASE: {}'.format(database_filepath))
+        print(f'Saving data...\n    DATABASE: {database_filepath}')
         save_data(df, database_filepath)
 
         print('Cleaned data saved to database!')
