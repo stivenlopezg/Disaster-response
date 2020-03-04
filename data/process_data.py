@@ -1,13 +1,23 @@
+import logging
 import pandas as pd
 from sqlalchemy import create_engine
 import sys
 import os
+
+logger = logging.getLogger('disaster_response_etl')
+logger.setLevel(logging.INFO)
+console_handle = logging.StreamHandler(sys.stdout)
+console_handle.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s -%(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+console_handle.setFormatter(formatter)
+logger.addHandler(console_handle)
 
 
 def load_data(messages_filepath: str, categories_filepath: str) -> pd.DataFrame:
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(left=messages, right=categories, on=['id'])
+    logger.info('The data has loaded successfully!')
     return df
 
 
@@ -22,13 +32,14 @@ def clean_data(df: pd.DataFrame, col: str = 'categories') -> pd.DataFrame:
     df.drop(col, axis=1, inplace=True)
     df = pd.concat([df, categories], axis=1)
     df.drop_duplicates(inplace=True)
+    logger.info('The data has been cleaned!')
     return df
 
 
 def save_data(df: pd.DataFrame, database_filepath: str):
     data_path = os.path.join(f'sqlite:///{database_filepath}')
     engine = create_engine(data_path)
-    df.to_sql('messages_disaster', engine, index=False)
+    return df.to_sql('messages_disaster', engine, index=False)
 
 
 def main():

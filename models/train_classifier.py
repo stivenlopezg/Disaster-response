@@ -3,21 +3,22 @@ import sys
 import logging
 import nltk
 import joblib
+import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from classification_model.evaluation import print_metrics_summary
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from xgboost import XGBClassifier
 
 import warnings
 
-nltk.download(['punkt', 'wordnet', 'stopwords'])
+# nltk.download(['punkt', 'wordnet', 'stopwords'])
 
 warnings.filterwarnings(action='ignore')
 
@@ -66,7 +67,12 @@ def build_model():
 
 def evaluate_model(model, X_test: pd.DataFrame, Y_test: pd.Series):
     y_pred = model.predict(X_test)
-    print_metrics_summary(Y_test, y_pred)
+    for i, col in enumerate(Y_test):
+        print(f'The metrics for {col} is: \n')
+        print(f'The accuracy: {np.round(accuracy_score(y_true=Y_test[col], y_pred=y_pred[:, i]), 2)}')
+        print(f'The precision: {np.round(precision_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"), 2)}')
+        print(f'The recall: {np.round(recall_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"), 2)}')
+        print(f'The F1 score: {np.round(f1_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"), 2)}')
     logger.info('The model has been evaluated on unobserved data')
 
 
