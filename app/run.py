@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import plotly
@@ -25,11 +26,12 @@ def tokenize(text):
 
 
 # load data
-engine = create_engine('sqlite:///../data/MessagesDisaster.db')
+file_path = os.path.abspath(os.getcwd())
+engine = create_engine(f'sqlite:///{file_path}/data/MessagesDisaster.db')
 df = pd.read_sql_table('messages_disaster', engine)
 
 # load model
-model = joblib.load("../models/xgboosting.pkl")
+model = joblib.load(f"{file_path}/models/xgboosting.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model

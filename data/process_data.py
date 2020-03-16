@@ -37,9 +37,9 @@ def clean_data(df: pd.DataFrame, col: str = 'categories') -> pd.DataFrame:
 
 
 def save_data(df: pd.DataFrame, database_filepath: str):
-    data_path = os.path.join(f'sqlite:///{database_filepath}')
+    data_path = f'sqlite:///{database_filepath}'
     engine = create_engine(data_path)
-    return df.to_sql('messages_disaster', engine, index=False)
+    return df.to_sql('messages_disaster', engine, index=False, if_exists='replace')
 
 
 def main():
