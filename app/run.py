@@ -29,6 +29,8 @@ def tokenize(text):
 file_path = os.path.abspath(os.getcwd())
 engine = create_engine(f'sqlite:///{file_path}/data/MessagesDisaster.db')
 df = pd.read_sql_table('messages_disaster', engine)
+df['message'] = df['message'].apply(lambda x: re.sub(r"[^a-zA-Z0-9]", ' ', x.lower()))
+df['character_length'] = df['message'].apply(lambda x: len(str(x).split()))
 
 # load model
 model = joblib.load(f"{file_path}/models/xgboosting.pkl")
@@ -40,8 +42,15 @@ model = joblib.load(f"{file_path}/models/xgboosting.pkl")
 def index():
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
+    genre_counts = df.groupby('genre').count()['message'].sort_values(ascending=True)
     genre_names = list(genre_counts.index)
+
+    character_mean = df.groupby('genre').mean()['character_length'].sort_values(ascending=True)
+    genre_names_character = list(character_mean.index)
+
+    if len(genre_counts) == len(character_mean):
+        colors = ['lightblue'] * len(genre_counts)
+        colors[-1] = 'mediumblue'
 
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -49,18 +58,45 @@ def index():
         {
             'data': [
                 Bar(
-                    x=genre_names,
-                    y=genre_counts
+                    x=genre_counts,
+                    y=genre_names,
+                    text=genre_counts,
+                    marker_color=colors,
+                    orientation='h',
+                    textposition='outside',
+                    texttemplate='%{text:.2s}'
                 )
             ],
 
             'layout': {
                 'title': 'Distribution of Message Genres',
                 'yaxis': {
-                    'title': "Count"
+                    'title': "Genre"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "Count"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=character_mean,
+                    y=genre_names_character,
+                    text=character_mean,
+                    marker_color=colors,
+                    orientation='h',
+                    textposition='outside',
+                    texttemplate='%{text:.2s}'
+                )
+            ],
+            'layout': {
+                'title': 'Average character length per gender',
+                'yaxis': {
+                    'title': 'Genre'
+                },
+                'xaxis': {
+                    'title': 'Average'
                 }
             }
         }
