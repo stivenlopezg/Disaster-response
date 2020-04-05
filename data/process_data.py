@@ -2,7 +2,6 @@ import logging
 import pandas as pd
 from sqlalchemy import create_engine
 import sys
-import os
 
 logger = logging.getLogger('disaster_response_etl')
 logger.setLevel(logging.INFO)
