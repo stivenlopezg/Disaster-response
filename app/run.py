@@ -91,7 +91,7 @@ def index():
                 )
             ],
             'layout': {
-                'title': 'Average character length per gender',
+                'title': 'Average Character Length per Genres',
                 'yaxis': {
                     'title': 'Genre'
                 },
