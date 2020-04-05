@@ -70,7 +70,7 @@ def evaluate_model(model, X_test: pd.DataFrame, Y_test: pd.Series):
     for i, col in enumerate(Y_test):
         print(f'The metrics for {col} is: \n')
         print(f'The accuracy: {np.round(accuracy_score(y_true=Y_test[col], y_pred=y_pred[:, i]), 2)}')
-        print(f'The precision: {np.round(precision_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"), 2)}')
+        print(f'The precision: {np.round(precision_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"),2)}')
         print(f'The recall: {np.round(recall_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"), 2)}')
         print(f'The F1 score: {np.round(f1_score(y_true=Y_test[col], y_pred=y_pred[:, i], average="weighted"), 2)}')
     logger.info('The model has been evaluated on unobserved data')
