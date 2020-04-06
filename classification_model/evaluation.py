@@ -4,7 +4,7 @@ from sklearn.metrics import classification_report, accuracy_score, \
                             precision_score, recall_score, f1_score
 
 
-def generate_report(y_true: list, y_pred: list):
+def generate_report(y_true: list, y_pred: list) -> pd.DataFrame:
     """
     Generate a DataFrame with the main classification metrics
     :param y_true: Observed value
@@ -15,7 +15,7 @@ def generate_report(y_true: list, y_pred: list):
     return report
 
 
-def confusion_matrix(y_true: list, y_pred: list, normalize: bool = True):
+def confusion_matrix(y_true: list, y_pred: list, normalize: bool = True) -> pd.DataFrame:
     """
     Generates a confusion matrix
     :param y_true: Observed value
