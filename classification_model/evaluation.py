@@ -59,7 +59,7 @@ def print_metrics_summary(y_test: list, y_pred: list):
     :return: string
     """
     for i, col in enumerate(y_test):
-        print(f'The metrics for {col} is: \n')
+        print(f'The metrics for {col} are: \n')
         print(metrics_summary(y_test[col], y_pred[:, i]))
 
 
@@ -71,7 +71,7 @@ def print_report(y_test: list, y_pred: list):
     :return: string
     """
     for i, col in enumerate(y_test):
-        print(f'The prediction for {col} is: \n')
+        print(f'The prediction for {col} are: \n')
         print(generate_report(y_test[col], y_pred[:, i]))
 
 
@@ -83,5 +83,5 @@ def print_cm(y_test: list, y_pred: list):
     :return: string
     """
     for i, col in enumerate(y_test):
-        print(f'The confusion matrix for {col} is: \n')
+        print(f'The confusion matrix for {col} are: \n')
         print(confusion_matrix(y_test[col], y_pred[:, i]))
